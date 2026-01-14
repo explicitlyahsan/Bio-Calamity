@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIO-CALAMITY | AI Disaster Prediction</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- PREMIUM GOLD & LIGHT THEME VARIABLES --- */
+        :root {
+            /* Backgrounds */
+            --bg-main: #f8fafc;       
+            --bg-card: #ffffff;       
+            --bg-glass: rgba(255, 255, 255, 0.75); /* Increased transparency for background to show */
+            
+            /* Accents */
+            --accent-primary: #0f766e; /* Deep Teal */
+            --accent-secondary: #0ea5e9; /* Sky Blue */
+            --accent-gold: #d97706;    /* Rich Amber Gold */
+            --accent-gold-light: #fcd34d; /* Soft Champagne */
+            
+            --accent-gradient: linear-gradient(135deg, #0f766e 0%, #0ea5e9 100%);
+            --accent-light: #f0f9ff;   
+            
+            /* Text */
+            --text-main: #1e293b;     
+            --text-muted: #64748b;    
+            --text-light: #94a3b8;    
+            
+            /* Status Colors */
+            --alert-red: #ef4444;
+            --warning-gold: #f59e0b;
+            
+            /* Borders & Shadows */
+            --border-subtle: rgba(226, 232, 240, 0.8);
+            --shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+            
+            --font-main: 'Inter', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: var(--font-main);
+            overflow-x: hidden;
+            line-height: 1.6;
+            min-height: 100vh;
+            
+            /* --- SUBTLE GOLDEN BACKGROUND ELEMENTS --- */
+            background-image: 
+                /* Top Right: Warm Golden Glow */
+                radial-gradient(circle at 100% 0%, rgba(251, 191, 36, 0.12) 0%, transparent 45%),
+                /* Bottom Left: Softer Amber Glow */
+                radial-gradient(circle at 0% 100%, rgba(217, 119, 6, 0.08) 0%, transparent 50%),
+                /* Center: Clean White Light */
+                radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.8) 0%, transparent 100%);
+            background-attachment: fixed; /* Keeps the gradient stable while scrolling */
+        }
+
+        /* --- UTILITIES --- */
+        .hidden { display: none !important; }
+        
+        .btn {
+            padding: 12px 28px;
+            background: white;
+            border: 1px solid var(--border-subtle);
+            color: var(--accent-primary);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            box-shadow: var(--shadow-soft);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Subtle gold shine on hover */
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .btn:hover::before { left: 100%; }
+        
+        .btn:hover {
+            border-color: var(--accent-gold);
+            color: var(--text-main);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(217, 119, 6, 0.15); /* Golden shadow */
+        }
+
+        /* --- HEADER & NAV --- */
+        header {
+            position: sticky;
+            top: 0;
+            background-color: rgba(255, 255, 255, 0.85); /* More transparency for gold bg to show */
+            backdrop-filter: blur(16px); /* Stronger blur for glass effect */
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+            padding: 1rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            /* Gradient Text: Teal to Gold */
+            background: linear-gradient(135deg, var(--accent-primary) 30%, var(--accent-gold) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        nav ul { display: flex; list-style: none; gap: 2.5rem; }
+
+        nav a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        nav a:hover, nav a.active {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        nav a.active::after {
+            content: '';
+            position: absolute;
+            bottom: -5px; left: 0; width: 100%; height: 2px;
+            /* Gold underline for active tab */
+            background: var(--accent-gold); 
+            border-radius: 2px;
+        }
+
+        /* --- MAIN CONTAINER --- */
+        main {
+            padding: 3rem 2rem;
+            max-width: 1280px;
+            margin: 0 auto;
+            min-height: 85vh;
+        }
+
+        /* --- PAGE 1: HERO --- */
+        .hero-anim {
+            text-align: center;
+            margin-bottom: 4rem;
+            padding: 4rem 0;
+            position: relative;
+        }
+        
+        .hero-title {
+            font-size: 4.5rem;
+            color: var(--text-main);
+            letter-spacing: -2px;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #1e293b 40%, #b45309 100%); /* Dark slate fading to bronze */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .hero-subtitle {
+            color: var(--text-muted);
+            font-size: 1.25rem;
+            font-weight: 400;
+            letter-spacing: 1px;
+        }
+
+        .section-header {
+            border-left: 4px solid var(--accent-gold); /* Gold accent bar */
+            padding-left: 1.5rem;
+            margin-bottom: 2rem;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        /* --- CARDS (GLASS & GOLD) --- */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2.5rem;
+        }
+
+        .card {
+            background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent */
+            backdrop-filter: blur(10px); /* Frosted glass look */
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent-gold-light); /* Subtle gold border on hover */
+            box-shadow: 0 20px 40px -10px rgba(217, 119, 6, 0.1); /* Golden glow shadow */
+            background-color: rgba(255, 255, 255, 0.95);
+        }
+
+        .card::after {
+            content: "VIEW INTELLIGENCE";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(4px);
+            color: var(--accent-gold); /* Gold text on hover overlay */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-weight: 700;
+            letter-spacing: 1px;
+            font-size: 0.85rem;
+        }
+        
+        .card:hover::after { opacity: 1; }
+
+        .card img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            filter: contrast(105%); 
+            transition: filter 0.5s;
+        }
+
+        .card:hover img { filter: contrast(110%) saturate(110%); }
+
+        .card-content { padding: 1.75rem; flex-grow: 1; }
+
+        .card-tag {
+            background: #fffbeb; /* Very light amber */
+            color: var(--accent-gold);
+            padding: 4px 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border-radius: 20px;
+            margin-bottom: 12px;
+            display: inline-block;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .card-title {
+            font-size: 1.35rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        /* --- MODAL --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(30, 41, 59, 0.6);
+            z-index: 2000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(6px);
+        }
+
+        .modal-content {
+            background: #fff;
+            border: 1px solid var(--border-subtle);
+            width: 90%;
+            max-width: 950px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            padding: 3rem;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            animation: modalPop 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            /* Subtle gold gradient border at top */
+            border-top: 4px solid var(--accent-gold);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1.5rem;
+            right: 2rem;
+            font-size: 2rem;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .modal-close:hover { color: var(--alert-red); }
+
+        .modal-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            margin-top: 2rem;
+        }
+
+        .stat-box {
+            background: #fafafa;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border-left: 4px solid var(--accent-primary);
+            margin-bottom: 1.5rem;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.01);
+        }
+
+        .impact-box {
+            background: #fef2f2;
+            border: 1px solid #fee2e2;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            border-radius: 12px;
+            color: var(--alert-red);
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 1rem;
+        }
+        .gallery-img {
+            width: 100%;
+            height: 130px;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: var(--shadow-soft);
+        }
+
+        /* --- PAGE 3: UNUSUAL BEHAVIOR --- */
+        .behavior-list { display: flex; flex-direction: column; gap: 1.5rem; }
+        
+        .behavior-item {
+            display: flex;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 1.5rem;
+            align-items: center;
+            gap: 2rem;
+            transition: all 0.3s;
+            cursor: pointer;
+            box-shadow: var(--shadow-soft);
+        }
+        
+        .behavior-item:hover {
+            transform: scale(1.01);
+            box-shadow: 0 15px 30px rgba(217, 119, 6, 0.1);
+            border-color: var(--accent-gold);
+        }
+        
+        .behavior-img {
+            width: 110px; height: 110px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #fff;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        /* --- PAGE 4: LOGIN & DASHBOARD --- */
+        .login-wrapper {
+            max-width: 420px;
+            margin: 4rem auto;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 3rem;
+            border-radius: 24px;
+            border: 1px solid var(--border-subtle);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+        }
+        
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; margin-bottom: 0.8rem; color: var(--text-main); font-size: 0.9rem; font-weight: 600; }
+        
+        .form-group input {
+            width: 100%; padding: 14px;
+            background: #fff; 
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            color: var(--text-main); outline: none;
+            transition: all 0.3s;
+            font-family: var(--font-main);
+        }
+        
+        .form-group input:focus { 
+            border-color: var(--accent-gold); 
+            box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.1);
+        }
+        
+        .upload-zone {
+            border: 2px dashed var(--border-subtle);
+            background: rgba(255,255,255,0.5);
+            padding: 3rem; text-align: center;
+            margin-top: 2rem; cursor: pointer;
+            border-radius: 16px;
+            transition: all 0.3s;
+        }
+        
+        .upload-zone:hover {
+            border-color: var(--accent-gold);
+            background: #fffbeb; 
+        }
+        
+        .analysis-result {
+            margin-top: 2.5rem; padding: 2rem;
+            border-radius: 16px;
+            border: 1px solid var(--accent-gold);
+            background: #fffbeb;
+            color: var(--text-main);
+        }
+
+        /* --- ANIMATIONS & LOADER --- */
+        @keyframes modalPop {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        
+        .fade-in { animation: fadeIn 0.6s ease-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .loader {
+            border: 3px solid rgba(217, 119, 6, 0.1); 
+            border-top: 3px solid var(--accent-gold);
+            border-radius: 50%; width: 50px; height: 50px;
+            animation: spin 0.8s linear infinite; margin: 20px auto;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-main); }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent-gold); }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">BIO-CALAMITY</div>
+        <nav>
+            <ul>
+                <li><a href="#" onclick="showPage('current-disasters')" id="nav-home" class="active">Live Feed</a></li>
+                <li><a href="#" onclick="showPage('types-calamities')" id="nav-types">Profiles</a></li>
+                <li><a href="#" onclick="showPage('animal-behavior')" id="nav-behavior">Bio-Data</a></li>
+                <li><a href="#" onclick="showPage('user-login')" id="nav-login">Login</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div id="details-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <div id="modal-body">
+                </div>
+        </div>
+    </div>
+
+    <main>
+
+        <section id="current-disasters" class="fade-in">
+            <div class="hero-anim">
+                <h1 class="hero-title">BIO-CALAMITY</h1>
+                <p class="hero-subtitle">Next-Gen Biosensory Prediction Network</p>
+            </div>
+            <h2 class="section-header">Live Global Intel (9 Active)</h2>
+            <div class="grid-container" id="disaster-grid"></div>
+        </section>
+
+        <section id="types-calamities" class="hidden fade-in">
+            <h2 class="section-header">Regional Calamity Profiles</h2>
+            <p style="margin-bottom: 2rem; color: var(--text-muted); font-size: 1.1rem;">Select a classification to view historical bio-indicators.</p>
+            <div class="grid-container" id="calamity-grid"></div>
+        </section>
+
+        <section id="animal-behavior" class="hidden fade-in">
+            <h2 class="section-header">Bio-Sensory Database</h2>
+            <p style="margin-bottom: 2rem; color: var(--text-muted); font-size: 1.1rem;">Explore species-specific anomaly detection mechanisms.</p>
+            <div class="behavior-list" id="behavior-grid"></div>
+        </section>
+
+        <section id="user-login" class="hidden fade-in">
+            <div id="login-form-container" class="login-wrapper">
+                <h2 style="color: var(--text-main); text-align: center; margin-bottom: 2rem;">Authorized Access</h2>
+                <div class="form-group">
+                    <label>OPERATOR ID</label>
+                    <input type="text" id="username" placeholder="Enter Username">
+                </div>
+                <div class="form-group">
+                    <label>ACCESS KEY</label>
+                    <input type="password" id="password" placeholder="Enter Password">
+                </div>
+                <button class="btn" style="width: 100%" onclick="handleLogin()">Authenticate</button>
+                <p id="login-error" style="color: var(--alert-red); margin-top: 15px; text-align: center; font-size: 0.9rem; display: none;">Access Denied: Invalid Credentials.</p>
+            </div>
+            <div id="dashboard-container" class="hidden">
+                <h2 class="section-header">Pattern Recognition Engine</h2>
+                <p style="color: var(--text-muted);">Operator: <span style="color: var(--accent-gold); font-weight: 700;">Generic</span>. Ready for biosensory ingestion.</p>
+                <div class="upload-zone" id="drop-zone">
+                    <p style="font-size: 1.2rem; margin-bottom: 10px; color: var(--text-main);">Drag & Drop Media or <strong>Click to Browse</strong></p>
+                    <p style="font-size: 0.9rem; color: var(--text-muted);">Supported Formats: .mp3, .mp4, .jpg, .png (200KB - 9MB)</p>
+                    <input type="file" id="file-input" style="display: none" accept="image/*,video/*,audio/*">
+                </div>
+                <p id="upload-msg" style="margin-top:15px; text-align: center; font-weight: 500;"></p>
+                <div id="analysis-output" class="hidden">
+                    <div class="loader"></div>
+                    <p style="text-align: center; color: var(--text-muted);">Processing Neural Patterns...</p>
+                </div>
+                <div id="final-result" class="hidden analysis-result"></div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- DATASET 1: ACTIVE DISASTERS ---
+        const activeDisasters = [
+            { id: 1, loc: "Ring of Fire, Pacific", type: "Seismic Activity", title: "Magnitude 5.2 Tremors", severity: "Moderate", affected: "Coastal Villages", insight: "Deep-sea oarfish surfacing.", past: "2011 Tohoku Earthquake", impact: "Infrastructure shaking.", img: "https://loremflickr.com/600/400/ocean,waves", gallery: ["https://loremflickr.com/300/200/fish", "https://loremflickr.com/300/200/seismograph"] },
+            { id: 2, loc: "California, USA", type: "Wildfire", title: "Sierra Forest Fire", severity: "Critical", affected: "30,000 Acres", insight: "Deer migrating to urban edges.", past: "2018 Camp Fire", impact: "Habitat loss.", img: "https://loremflickr.com/600/400/wildfire,forest", gallery: ["https://loremflickr.com/300/200/fire,smoke", "https://loremflickr.com/300/200/deer"] },
+            { id: 3, loc: "Bay of Bengal, India", type: "Cyclone", title: "Cyclone Vayu", severity: "Severe", affected: "Odisha Coast", insight: "Seabirds flying inland.", past: "1999 Odisha Cyclone", impact: "Coastal erosion.", img: "https://loremflickr.com/600/400/storm,cyclone", gallery: ["https://loremflickr.com/300/200/rain,storm", "https://loremflickr.com/300/200/clouds"] },
+            { id: 4, loc: "Jakarta, Indonesia", type: "Flash Flood", title: "Monsoon Surge", severity: "High", affected: "Urban Areas", insight: "Rats emerging from ground.", past: "2007 Jakarta Floods", impact: "Displacement.", img: "https://loremflickr.com/600/400/flood,rain", gallery: ["https://loremflickr.com/300/200/water,flood", "https://loremflickr.com/300/200/snake"] },
+            { id: 5, loc: "Mount Etna, Italy", type: "Volcanic Eruption", title: "Magma Rising", severity: "High Alert", affected: "Catania", insight: "Goats refuse to graze.", past: "1669 Etna Eruption", impact: "Ash clouds.", img: "https://loremflickr.com/600/400/volcano,lava", gallery: ["https://loremflickr.com/300/200/smoke,mountain", "https://loremflickr.com/300/200/goat"] },
+            { id: 6, loc: "Alberta, Canada", type: "Blizzard", title: "Polar Vortex", severity: "Extreme Cold", affected: "North Provinces", insight: "Wolves changing hunting patterns.", past: "2014 Polar Vortex", impact: "Power grid strain.", img: "https://loremflickr.com/600/400/snow,blizzard", gallery: ["https://loremflickr.com/300/200/winter,ice", "https://loremflickr.com/300/200/wolf"] },
+            { id: 7, loc: "Horn of Africa", type: "Drought", title: "Arid Crisis", severity: "Long-term", affected: "Somalia Border", insight: "Elephants digging riverbeds.", past: "2011 East Africa Drought", impact: "Crop failure.", img: "https://loremflickr.com/600/400/desert,dry", gallery: ["https://loremflickr.com/300/200/sand,sun", "https://loremflickr.com/300/200/elephant"] },
+            { id: 8, loc: "Andes, Peru", type: "Landslide", title: "Slope Instability", severity: "Warning", affected: "Mountain Pass", insight: "Earthworms surfacing.", past: "2017 Mocoa Landslide", impact: "Road blockages.", img: "https://loremflickr.com/600/400/mountain,rock", gallery: ["https://loremflickr.com/300/200/mud,rock", "https://loremflickr.com/300/200/insect"] },
+            { id: 9, loc: "Caribbean", type: "Hurricane", title: "Tropical Storm Zeta", severity: "Forming", affected: "Islands", insight: "Sharks moving to deep water.", past: "2004 Hurricane Charley", impact: "Coastal flooding.", img: "https://loremflickr.com/600/400/hurricane,ocean", gallery: ["https://loremflickr.com/300/200/wind,palm", "https://loremflickr.com/300/200/shark"] }
+        ];
+
+        // --- DATASET 2: TYPES OF CALAMITIES ---
+        const calamityTypes = [
+            { type: "Tsunamis", region: "Pacific Ring of Fire", desc: "Giant ocean waves.", reaction: "Deep sea fish surfacing.", history: "2004 Indian Ocean Tsunami", img: "https://loremflickr.com/600/400/tsunami,wave", gallery: ["https://loremflickr.com/300/200/wave,destruction", "https://loremflickr.com/300/200/ocean,floor"] },
+            { type: "Earthquakes", region: "Fault Lines", desc: "Sudden ground shaking.", reaction: "Snakes waking from hibernation.", history: "1906 San Francisco Earthquake", img: "https://loremflickr.com/600/400/earthquake,rubble", gallery: ["https://loremflickr.com/300/200/crack,road", "https://loremflickr.com/300/200/seismometer"] },
+            { type: "Volcanic Eruptions", region: "Volcanic Arcs", desc: "Lava/Ash discharge.", reaction: "Goats refusing to graze.", history: "1883 Krakatoa", img: "https://loremflickr.com/600/400/volcano,fire", gallery: ["https://loremflickr.com/300/200/lava,flow", "https://loremflickr.com/300/200/ash,cloud"] },
+            { type: "Hurricanes", region: "Atlantic", desc: "Rotating storm systems.", reaction: "Sharks swimming deeper.", history: "2005 Katrina", img: "https://loremflickr.com/600/400/hurricane,storm", gallery: ["https://loremflickr.com/300/200/wind,palm", "https://loremflickr.com/300/200/satellite,storm"] },
+            { type: "Droughts", region: "Arid Zones", desc: "Low rainfall.", reaction: "Ants building deeper mounds.", history: "1930s Dust Bowl", img: "https://loremflickr.com/600/400/drought,desert", gallery: ["https://loremflickr.com/300/200/dry,land", "https://loremflickr.com/300/200/dead,tree"] },
+            { type: "Blizzards", region: "High Latitudes", desc: "Severe snowstorms.", reaction: "Squirrels over-stocking.", history: "1972 Iran Blizzard", img: "https://loremflickr.com/600/400/blizzard,snow", gallery: ["https://loremflickr.com/300/200/snow,drift", "https://loremflickr.com/300/200/ice,storm"] },
+            { type: "Landslides", region: "Mountains", desc: "Earth movement.", reaction: "Earthworms surfacing.", history: "1985 Armero", img: "https://loremflickr.com/600/400/landslide,mud", gallery: ["https://loremflickr.com/300/200/mud,slide", "https://loremflickr.com/300/200/mountain,rain"] }
+        ];
+
+        // --- DATASET 3: ANIMAL BEHAVIORS ---
+        const animalBehaviors = [
+            { 
+                species: "Canis lupus familiaris (Dog)", 
+                common: "Domestic Dog",
+                disaster: "Earthquakes",
+                behavior: "Excessive howling, agitation, and biting without provocation.", 
+                mechanism: "High sensitivity to P-waves (compressional waves) that arrive seconds before damaging S-waves.",
+                timing: "12-24 hours pre-event", 
+                img: "https://loremflickr.com/100/100/dog",
+                gallery: ["https://loremflickr.com/300/200/dog,barking", "https://loremflickr.com/300/200/crack,ground"]
+            },
+            { 
+                species: "Elephas maximus (Elephant)", 
+                common: "Asian/African Elephant",
+                disaster: "Tsunamis & Earthquakes",
+                behavior: "Sudden migration to higher ground; trumpeting in unison.", 
+                mechanism: "Ability to detect infrasound (low-frequency sound waves) generated by tectonic shifts.",
+                timing: "1-2 hours pre-event", 
+                img: "https://loremflickr.com/100/100/elephant",
+                gallery: ["https://loremflickr.com/300/200/elephant,running", "https://loremflickr.com/300/200/jungle"]
+            },
+            { 
+                species: "Selachimorpha (Sharks)", 
+                common: "Sharks (Tiger/Bull)",
+                disaster: "Hurricanes/Typhoons",
+                behavior: "Evacuating shallow waters and moving to deep ocean rapidly.", 
+                mechanism: "Sensitive lateral lines detect the drop in barometric (atmospheric) pressure.",
+                timing: "24 hours pre-event", 
+                img: "https://loremflickr.com/100/100/shark",
+                gallery: ["https://loremflickr.com/300/200/shark,ocean", "https://loremflickr.com/300/200/storm,sea"]
+            },
+            { 
+                species: "Anura (Toads/Frogs)", 
+                common: "Common Toad",
+                disaster: "Earthquakes",
+                behavior: "Abandoning breeding colonies and hiding under rocks en masse.", 
+                mechanism: "Sensitive to changes in groundwater chemistry and electromagnetic field disturbances.",
+                timing: "3-5 days pre-event", 
+                img: "https://loremflickr.com/100/100/toad",
+                gallery: ["https://loremflickr.com/300/200/frog,pond", "https://loremflickr.com/300/200/rock,ground"]
+            },
+            { 
+                species: "Formicidae (Ants)", 
+                common: "Red Ants/Black Ants",
+                disaster: "Floods/Heavy Rain",
+                behavior: "Building mounds significantly higher or moving eggs to higher foliage.", 
+                mechanism: "Hygroscopic sensitivity allows them to detect minute changes in humidity.",
+                timing: "12 hours pre-event", 
+                img: "https://loremflickr.com/100/100/ant",
+                gallery: ["https://loremflickr.com/300/200/ant,mound", "https://loremflickr.com/300/200/rain,leaf"]
+            },
+            { 
+                species: "Bos taurus (Cows)", 
+                common: "Cattle",
+                disaster: "Thunderstorms/Tornadoes",
+                behavior: "Lying down in groups (herd consolidation) or tail flicking.", 
+                mechanism: "Reaction to static electricity buildup in the air and cooling temperatures.",
+                timing: "30-60 mins pre-event", 
+                img: "https://loremflickr.com/100/100/cow",
+                gallery: ["https://loremflickr.com/300/200/cow,field", "https://loremflickr.com/300/200/storm,sky"]
+            },
+            { 
+                species: "Serpentes (Snakes)", 
+                common: "Snakes",
+                disaster: "Earthquakes",
+                behavior: "Waking from hibernation early; emerging from burrows even in winter.", 
+                mechanism: "Extreme sensitivity to ground vibrations. If forced out in winter, they freeze.",
+                timing: "1-2 days pre-event", 
+                img: "https://loremflickr.com/100/100/snake",
+                gallery: ["https://loremflickr.com/300/200/snake,ground", "https://loremflickr.com/300/200/winter,snow"]
+            },
+            { 
+                species: "Anthophila (Bees)", 
+                common: "Honey Bees",
+                disaster: "Rain/Storms",
+                behavior: "Returning to hive immediately; increased defensiveness.", 
+                mechanism: "Bees use polarized light for navigation, which gets disrupted by storm clouds.",
+                timing: "1 hour pre-event", 
+                img: "https://loremflickr.com/100/100/bee",
+                gallery: ["https://loremflickr.com/300/200/bee,hive", "https://loremflickr.com/300/200/flower"]
+            }
+        ];
+
+        // --- NAVIGATION & MODAL LOGIC ---
+        function showPage(pageId) {
+            document.querySelectorAll('main > section').forEach(sec => sec.classList.add('hidden'));
+            document.querySelectorAll('nav a').forEach(link => link.classList.remove('active'));
+            document.getElementById(pageId).classList.remove('hidden');
+            if(pageId === 'current-disasters') document.getElementById('nav-home').classList.add('active');
+            if(pageId === 'types-calamities') document.getElementById('nav-types').classList.add('active');
+            if(pageId === 'animal-behavior') document.getElementById('nav-behavior').classList.add('active');
+            if(pageId === 'user-login') document.getElementById('nav-login').classList.add('active');
+        }
+
+        function closeModal() { document.getElementById('details-modal').classList.add('hidden'); }
+        window.onclick = function(event) { if (event.target == document.getElementById('details-modal')) closeModal(); }
+
+        // Modal: Disasters
+        function openDisasterModal(index) {
+            const data = activeDisasters[index];
+            const body = document.getElementById('modal-body');
+            let g = ''; data.gallery.forEach(img => g += `<img src="${img}" class="gallery-img">`);
+            body.innerHTML = `
+                <h2 style="color:var(--text-main); border-bottom:1px solid var(--border-subtle); padding-bottom:15px; margin-bottom:20px;">${data.title}</h2>
+                <div class="modal-grid">
+                    <div>
+                        <div class="stat-box"><h4 style="color:var(--text-muted); font-size:0.8rem; letter-spacing:0.5px; font-weight:700;">SEVERITY</h4><p style="color:var(--alert-red);font-weight:800; font-size:1.2rem;">${data.severity}</p></div>
+                        <div class="stat-box"><h4 style="color:var(--text-muted); font-size:0.8rem; letter-spacing:0.5px; font-weight:700;">REGION</h4><p style="color:var(--text-main);">${data.affected}</p></div>
+                        <h3 style="margin-top:1.5rem;color:var(--accent-gold)">AI Insight</h3><p style="color:var(--text-muted);">"${data.insight}"</p>
+                    </div>
+                    <div><h3 style="color:var(--text-main)">Live Visuals</h3><div class="gallery-grid">${g}</div></div>
+                </div>`;
+            document.getElementById('details-modal').classList.remove('hidden');
+        }
+
+        // Modal: Calamities
+        function openCalamityModal(index) {
+            const data = calamityTypes[index];
+            const body = document.getElementById('modal-body');
+            let g = ''; data.gallery.forEach(img => g += `<img src="${img}" class="gallery-img">`);
+            body.innerHTML = `
+                <h2 style="color:var(--text-main); border-bottom:1px solid var(--border-subtle); padding-bottom:15px; margin-bottom:20px;">${data.type}</h2>
+                <div class="modal-grid">
+                    <div>
+                        <p style="font-size:1.1rem;margin-bottom:1.5rem; color:var(--text-main);">${data.desc}</p>
+                        <div class="stat-box"><h4 style="color:var(--accent-gold); font-weight:700;">Primary Region</h4><p style="color:var(--text-main);">${data.region}</p></div>
+                        <h3 style="margin-top:1.5rem;color:var(--text-main)">Key Bio-Indicator</h3><p style="color:var(--text-muted); border-left:3px solid var(--accent-primary); padding-left:15px;">"${data.reaction}"</p>
+                    </div>
+                    <div><h3 style="color:var(--text-main)">Reference Gallery</h3><div class="gallery-grid">${g}</div></div>
+                </div>`;
+            document.getElementById('details-modal').classList.remove('hidden');
+        }
+
+        // Modal: Animal Behavior
+        function openBehaviorModal(index) {
+            const data = animalBehaviors[index];
+            const body = document.getElementById('modal-body');
+            let g = ''; data.gallery.forEach(img => g += `<img src="${img}" class="gallery-img">`);
+            
+            body.innerHTML = `
+                <h2 style="color:var(--text-main); border-bottom:1px solid var(--border-subtle); padding-bottom:10px;">${data.common}</h2>
+                <p style="color:var(--accent-gold); font-family:monospace; margin-bottom:20px; font-weight:600;">TAXONOMY: ${data.species}</p>
+                <div class="modal-grid">
+                    <div>
+                        <div class="stat-box" style="border-left: 4px solid var(--warning-gold);">
+                            <h4 style="color:var(--warning-gold); font-weight:800;">PREDICTOR FOR: ${data.disaster}</h4>
+                            <p style="color:var(--text-main);"><strong>Lead Time:</strong> ${data.timing}</p>
+                        </div>
+                        <h3 style="margin-top:1.5rem;color:var(--text-main)">Anomaly Description</h3>
+                        <p style="color:var(--text-muted);">${data.behavior}</p>
+                        
+                        <h3 style="margin-top:1.5rem;color:var(--accent-primary)">Biological Mechanism</h3>
+                        <p style="font-size:0.9rem; color:var(--text-muted);">${data.mechanism}</p>
+                    </div>
+                    <div>
+                        <h3 style="color:var(--text-main)">Contextual Evidence</h3>
+                        <div class="gallery-grid">${g}</div>
+                    </div>
+                </div>`;
+            document.getElementById('details-modal').classList.remove('hidden');
+        }
+
+        // --- RENDER & INIT ---
+        function init() {
+            // Page 1
+            const dGrid = document.getElementById('disaster-grid');
+            activeDisasters.forEach((d, i) => {
+                dGrid.innerHTML += `<div class="card" onclick="openDisasterModal(${i})"><img src="${d.img}"><div class="card-content"><span class="card-tag">${d.type}</span><h3 class="card-title">${d.title}</h3><p style="color:var(--text-muted);font-size:0.9rem;">📍 ${d.loc}</p></div></div>`;
+            });
+
+            // Page 2
+            const cGrid = document.getElementById('calamity-grid');
+            calamityTypes.forEach((c, i) => {
+                cGrid.innerHTML += `<div class="card" onclick="openCalamityModal(${i})"><img src="${c.img}"><div class="card-content"><h3 class="card-title">${c.type}</h3><p style="font-size:0.9rem; color:var(--text-muted);"><strong>Region:</strong> ${c.region}</p></div></div>`;
+            });
+
+            // Page 3
+            const bGrid = document.getElementById('behavior-grid');
+            animalBehaviors.forEach((b, i) => {
+                bGrid.innerHTML += `
+                    <div class="behavior-item" onclick="openBehaviorModal(${i})">
+                        <img src="${b.img}" class="behavior-img" alt="Animal">
+                        <div style="flex-grow:1">
+                            <h3 style="color: var(--text-main); font-weight:700;">${b.common}</h3>
+                            <p style="font-size:0.9rem; color:var(--text-muted); margin-top:5px;">Predicts: <span style="color:var(--accent-gold); font-weight:600;">${b.disaster}</span></p>
+                        </div>
+                        <div style="background:var(--bg-main); padding:10px; border-radius:50%; box-shadow:var(--shadow-soft);"><span style="color: var(--accent-gold); font-size: 1.2rem;">&#10132;</span></div>
+                    </div>
+                `;
+            });
+        }
+
+        // --- AUTH & UPLOAD ---
+        function handleLogin() {
+            const u = document.getElementById('username').value, p = document.getElementById('password').value;
+            if (u === "Generic" && p === "ExplicitlyAhsan") {
+                document.getElementById('login-form-container').classList.add('hidden');
+                document.getElementById('dashboard-container').classList.remove('hidden');
+            } else { document.getElementById('login-error').style.display = 'block'; }
+        }
+
+        const dropZone = document.getElementById('drop-zone'), fileInput = document.getElementById('file-input');
+        dropZone.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', function(e) { handleFile(this.files[0]); });
+
+        function handleFile(file) {
+            const msg = document.getElementById('upload-msg'), output = document.getElementById('analysis-output'), resultBox = document.getElementById('final-result');
+            if (!file) return;
+            const sizeKB = file.size / 1024, sizeMB = sizeKB / 1024;
+            if (sizeKB < 200) { msg.innerHTML = `<span style="color:var(--alert-red)">Error: Too small (${Math.round(sizeKB)}KB). Min 200KB.</span>`; return; }
+            if (sizeMB > 9) { msg.innerHTML = `<span style="color:var(--alert-red)">Error: Too large (${sizeMB.toFixed(2)}MB). Max 9MB.</span>`; return; }
+
+            msg.innerHTML = `<span style="color:var(--accent-gold)">Uploading ${file.name}...</span>`;
+            output.classList.remove('hidden'); resultBox.classList.add('hidden');
+
+            setTimeout(() => {
+                output.classList.add('hidden'); resultBox.classList.remove('hidden');
+                const predictions = [{a: "Canine (Dog)", e: "Earthquake", p: "87%"}, {a: "Avian (Crows)", e: "Tsunami", p: "92%"}, {a: "Feline (Cat)", e: "Landslide", p: "76%"}];
+                const rand = predictions[Math.floor(Math.random() * predictions.length)];
+                resultBox.innerHTML = `
+                    <h3 style="color:var(--text-main);border-bottom:1px solid var(--border-subtle);padding-bottom:15px; margin-bottom:15px; font-weight:800;">ANALYSIS COMPLETE</h3>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;">
+                        <div><strong style="color:var(--text-muted)">File:</strong> ${file.name}</div>
+                        <div><strong style="color:var(--text-muted)">Size:</strong> ${sizeMB.toFixed(2)} MB</div>
+                        <div><strong style="color:var(--text-muted)">Species:</strong> <span style="color:var(--accent-gold); font-weight:700;">${rand.a}</span></div>
+                        <div><strong style="color:var(--text-muted)">Risk:</strong> <span style="color:var(--alert-red); font-weight:700;">CRITICAL</span></div>
+                    </div>
+                    <div style="margin-top:25px;text-align:center;background:white;padding:20px;border-radius:12px; box-shadow:var(--shadow-soft);">
+                        <h1 style="color:var(--accent-gold); margin-bottom:5px;">${rand.e} DETECTED</h1>
+                        <p style="color:var(--text-muted)">Confidence Interval: <strong>${rand.p}</strong></p>
+                    </div>`;
+            }, 3000);
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
